@@ -1,22 +1,28 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
-  const [errors, setError] = useState({});
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({
+      // keep the form data as it is (this is spread operator)
       ...formData,
       [e.target.id]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
+    // prevent refreshing form when submitted
     e.preventDefault();
     try {
       setLoading(true);
-      const rea = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,6 +37,12 @@ export default function SignUp() {
         setLoading(false);
         return;
       }
+
+      // Handle successful signup (e.g., redirect to another page or show success message)
+      setLoading(false);
+      setError(null);
+      //if errors are cleared, just navigate to sign in page
+      navigate("/sign-in");
     } catch (error) {
       setLoading(false);
       setError(error.message);
@@ -56,7 +68,7 @@ export default function SignUp() {
           onChange={handleChange}
         />
         <input
-          type="text"
+          type="password"
           placeholder="password"
           className="border p-3 rounded-lg"
           id="password"
@@ -77,6 +89,7 @@ export default function SignUp() {
           <span className="text-blue-700">Sign in</span>
         </Link>
       </div>
+      {error && <p className="text-red-500">{error}</p>}
     </div>
   );
 }
